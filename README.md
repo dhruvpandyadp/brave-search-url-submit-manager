@@ -133,7 +133,6 @@ Auto Submit uses Playwright to control a browser session.
 - Stops if Brave shows access-control text
 - Stores debug HTML/screenshot files only when failures happen
 
-
 ## 🛠️ Technical Details
 
 ### Built With
@@ -211,6 +210,7 @@ Benefit: Lightweight tracking without database overhead
 - This app does not provide a Brave API or indexing guarantee.
 - No local database is used; export CSV before closing the session.
 - Community Cloud sessions can reset at any time.
+- If Auto Submit fails on Streamlit Community Cloud with a Playwright `TargetClosedError`, check that `runtime.txt`, `packages.txt`, and `.streamlit/config.toml` are committed at the repository root, then reboot the app from **Manage app**. The app should run on Python 3.12 and use headless Chromium.
 
 ## 📜 License
 
