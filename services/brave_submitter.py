@@ -99,27 +99,40 @@ def submit_urls_in_one_browser(
     launch_kwargs = chrome_launch_kwargs(chrome_path, headless)
 
     results: list[SubmitResult] = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch(**launch_kwargs)
-        try:
-            page = browser.new_page(viewport={"width": 1280, "height": 900})
-            for url in urls:
-                try:
-                    result = _submit_with_page(page, url, timeout_ms, pause_seconds)
-                except PlaywrightTimeoutError as exc:
-                    result = SubmitResult(url, "failed", f"Timeout: {exc}")
-                except Exception as exc:
-                    result = SubmitResult(url, "failed", str(exc))
-                results.append(result)
-                if result.status == "blocked":
-                    break
-                if pause_seconds:
-                    time.sleep(pause_seconds)
-        finally:
+    try:
+        with sync_playwright() as p:
             try:
-                browser.close()
-            except Exception:
-                pass
+                browser = p.chromium.launch(**launch_kwargs)
+            except Exception as exc:
+                message = (
+                    "Browser launch failed. On Streamlit Community Cloud this usually means "
+                    "Chromium is unavailable, the deployment is using an unsupported Python/runtime, "
+                    f"or the hosted container blocked browser startup. Details: {exc}"
+                )
+                return [SubmitResult(url, "failed", message) for url in urls]
+
+            page = browser.new_page(viewport={"width": 1280, "height": 900})
+            try:
+                for url in urls:
+                    try:
+                        result = _submit_with_page(page, url, timeout_ms, pause_seconds)
+                    except PlaywrightTimeoutError as exc:
+                        result = SubmitResult(url, "failed", f"Timeout: {exc}")
+                    except Exception as exc:
+                        result = SubmitResult(url, "failed", str(exc))
+                    results.append(result)
+                    if result.status == "blocked":
+                        break
+                    if pause_seconds:
+                        time.sleep(pause_seconds)
+            finally:
+                try:
+                    browser.close()
+                except Exception:
+                    pass
+    except Exception as exc:
+        message = f"Playwright failed before submission started: {exc}"
+        return [SubmitResult(url, "failed", message) for url in urls]
     return results
 
 
