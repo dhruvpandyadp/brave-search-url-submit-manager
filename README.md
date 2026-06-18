@@ -37,7 +37,6 @@
 - 🧠 **Session Memory** - No local database required; export before closing or reset
 
 ### ☁️ **Cloud-ready**
-- 🚀 **Streamlit Community Cloud Ready** - Includes `runtime.txt`, `packages.txt`, and `.streamlit/config.toml`
 - 🐧 **Linux Chromium Support** - Uses `/usr/bin/chromium` in cloud deployments
 - 💻 **Local Chrome Support** - Uses Google Chrome on macOS when available
 - 🔐 **No Secrets Required** - No API keys or credentials needed
